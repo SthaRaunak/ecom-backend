@@ -8,7 +8,7 @@ export function errorMiddleware(
   next: NextFunction
 ) {
   console.log("Error!!");
-  res.status(err.statusCode).json({
+  res.status(err.statusCode || 500).json({
     message: err.message,
     errorCode: err.errorCode,
     errors: err.errors,
