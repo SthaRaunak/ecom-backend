@@ -67,4 +67,10 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
   });
 };
 
-export { login, signUp };
+// /me endpoint -> return the logged in user
+
+const me = async (req: Request, res: Response, next: NextFunction) => {
+  res.json(req.user);
+};
+
+export { login, signUp, me };
