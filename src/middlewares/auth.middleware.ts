@@ -17,7 +17,7 @@ type JWTPayload = {
 // 2) if token present, verify and extract payload
 // 3) make a query to db get the user and attact it to request
 
-export async function AuthMiddleware(
+export async function authMiddleware(
   req: Request,
   res: Response,
   next: NextFunction
