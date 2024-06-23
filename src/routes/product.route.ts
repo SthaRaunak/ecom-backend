@@ -1,8 +1,17 @@
 import { Router } from "express";
 import { asyncHandler } from "../utils/asyncHandler";
-import { createProduct } from "../controllers/product.controller";
+import {
+  createProduct,
+  deleteProduct,
+  getProductById,
+  listProduct,
+  updateProduct,
+} from "../controllers/product.controller";
 import { validateRequest } from "../middlewares/validation.middleware";
-import { createProductSchema } from "../schema/product.schema";
+import {
+  createProductSchema,
+  updateProductSchema,
+} from "../schema/product.schema";
 import { authMiddleware } from "../middlewares/auth.middleware";
 import adminMiddleware from "../middlewares/admin";
 
@@ -17,4 +26,19 @@ router
     asyncHandler(createProduct)
   );
 
+router
+  .route("/:id")
+  .put(
+    authMiddleware,
+    adminMiddleware,
+    validateRequest(updateProductSchema),
+    asyncHandler(updateProduct)
+  );
+
+router
+  .route("/:id")
+  .delete(authMiddleware, adminMiddleware, asyncHandler(deleteProduct));
+
+router.route("/").get(asyncHandler(listProduct));
+router.route("/:id").get(asyncHandler(getProductById));
 export default router;

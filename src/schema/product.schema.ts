@@ -6,3 +6,5 @@ export const createProductSchema = z.object({
   price: z.number(),
   tags: z.string().array(),
 });
+
+export const updateProductSchema = createProductSchema.partial();
