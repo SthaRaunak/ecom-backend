@@ -7,3 +7,11 @@ export const SignUpSchema = z.object({
 });
 
 export const LoginSchema = SignUpSchema.omit({ name: true });
+
+export const AddAddressSchema = z.object({
+  lineOne: z.string(),
+  lineTwo: z.string().nullable(),
+  city: z.string(),
+  country: z.string(),
+  pincode: z.string().length(6),
+});
