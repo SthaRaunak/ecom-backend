@@ -42,7 +42,7 @@ const updateProduct = async (
 
     res.status(200).json(updatedProduct);
   } catch (err) {
-    next(
+    return next(
       new NotFoundException("Product not found.", ErrorCode.PRODUCT_NOT_FOUND)
     );
   }
@@ -62,7 +62,7 @@ const deleteProduct = async (
 
     res.status(204).json({});
   } catch (err) {
-    next(
+    return next(
       new NotFoundException("Product not found.", ErrorCode.PRODUCT_NOT_FOUND)
     );
   }

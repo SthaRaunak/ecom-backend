@@ -8,20 +8,21 @@ import {
 import { validateRequest } from "../middlewares/validation.middleware";
 import { CartSchema, changeQuantitySchema } from "../schema/cart.schema";
 import { authMiddleware } from "../middlewares/auth.middleware";
+import { asyncHandler } from "../utils/asyncHandler";
 
 const Router = express.Router();
 
 Router.route("/").post(
   authMiddleware,
   validateRequest(CartSchema),
-  addItemToCart
+  asyncHandler(addItemToCart)
 );
-Router.route("/").get(authMiddleware, getCart);
-Router.route("/:id").delete(authMiddleware, removeItemFromCart);
+Router.route("/").get(authMiddleware, asyncHandler(getCart));
+Router.route("/:id").delete(authMiddleware, asyncHandler(removeItemFromCart));
 Router.route("/:id").put(
   authMiddleware,
   validateRequest(changeQuantitySchema),
-  changeQuantity
+  asyncHandler(changeQuantity)
 );
 
 export default Router;

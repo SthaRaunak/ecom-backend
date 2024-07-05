@@ -33,7 +33,7 @@ const deleteAddress = async (
     await prismaClient.address.delete({ where: { id: Number(addressId) } });
     return res.status(201).json({});
   } catch (err) {
-    next(
+    return next(
       new NotFoundException("Address not found.", ErrorCode.ADDRESS_NOT_FOUND)
     );
   }
@@ -70,7 +70,7 @@ const updateUser = async (
         },
       });
       if (shippingAddress.userId !== user?.id) {
-        next(
+        return next(
           new BadRequestException(
             "Address does not belong to User",
             ErrorCode.ADDRESS_NOT_FOUND
@@ -78,7 +78,7 @@ const updateUser = async (
         );
       }
     } catch (err) {
-      next(
+      return next(
         new NotFoundException("Address Not Found.", ErrorCode.ADDRESS_NOT_FOUND)
       );
     }
@@ -92,7 +92,7 @@ const updateUser = async (
         },
       });
       if (billingAddress.userId !== user?.id) {
-        next(
+        return next(
           new BadRequestException(
             "Address does not belong to User",
             ErrorCode.ADDRESS_NOT_FOUND
@@ -100,7 +100,7 @@ const updateUser = async (
         );
       }
     } catch (error) {
-      next(
+      return next(
         new NotFoundException("Address Not Found.", ErrorCode.ADDRESS_NOT_FOUND)
       );
     }

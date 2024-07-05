@@ -20,7 +20,7 @@ const addItemToCart = async (
       },
     });
   } catch (err) {
-    next(
+    return next(
       new NotFoundException("Product not Found!", ErrorCode.PRODUCT_NOT_FOUND)
     );
   }
@@ -72,17 +72,17 @@ const removeItemFromCart = async (
     });
 
     if (cartItem.userId !== user?.id) {
-      next(
+      return next(
         new BadRequestException(
           "Item doest not belong to User",
           ErrorCode.UNAUTHORIZED
         )
       );
-      return;
     }
   } catch (err) {
-    next(new NotFoundException("Item Not Found", ErrorCode.CARTITEM_NOT_FOUND));
-    return;
+    return next(
+      new NotFoundException("Item Not Found", ErrorCode.CARTITEM_NOT_FOUND)
+    );
   }
 
   await prismaClient.cartItem.delete({
@@ -110,7 +110,7 @@ const changeQuantity = async (
       },
     });
     if (user?.id !== cartItem?.userId) {
-      next(
+      return next(
         new BadRequestException(
           "Item does not belong to user",
           ErrorCode.UNAUTHORIZED
@@ -118,8 +118,9 @@ const changeQuantity = async (
       );
     }
   } catch (err) {
-    next(new NotFoundException("Item Not Found", ErrorCode.CARTITEM_NOT_FOUND));
-    return;
+    return next(
+      new NotFoundException("Item Not Found", ErrorCode.CARTITEM_NOT_FOUND)
+    );
   }
 
   const newCart = await prismaClient.cartItem.update({
@@ -143,7 +144,14 @@ const getCart = async (req: Request, res: Response, next: NextFunction) => {
       userId: user.id,
     },
     include: {
-      product: true,
+      product: {
+        select: {
+          name: true,
+          description: true,
+          price: true,
+          tags: true,
+        },
+      },
     },
   });
 

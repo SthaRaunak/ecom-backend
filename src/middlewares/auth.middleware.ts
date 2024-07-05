@@ -25,8 +25,9 @@ export async function authMiddleware(
   const token = req.headers["authorization"];
 
   if (!token) {
-    next(new UnauthorizedException("Unauthorized", ErrorCode.UNAUTHORIZED));
-    return 1;
+    return next(
+      new UnauthorizedException("Unauthorized", ErrorCode.UNAUTHORIZED)
+    );
   }
   try {
     const payload = jwt.verify(token, JWT_SECRET) as any; //throws error if not valid
@@ -35,13 +36,16 @@ export async function authMiddleware(
     });
     console.log("user:", user);
     if (!user) {
-      next(new UnauthorizedException("Unauthorized", ErrorCode.UNAUTHORIZED));
-      return 1;
+      return next(
+        new UnauthorizedException("Unauthorized", ErrorCode.UNAUTHORIZED)
+      );
     }
 
     req.user = user;
     next();
   } catch (error) {
-    next(new UnauthorizedException("Unauthorized", ErrorCode.UNAUTHORIZED));
+    return next(
+      new UnauthorizedException("Unauthorized", ErrorCode.UNAUTHORIZED)
+    );
   }
 }
