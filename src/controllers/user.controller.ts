@@ -30,7 +30,6 @@ const deleteAddress = async (
 ) => {
   try {
     const { id: addressId } = req.params;
-
     await prismaClient.address.delete({ where: { id: Number(addressId) } });
     return res.status(201).json({});
   } catch (err) {

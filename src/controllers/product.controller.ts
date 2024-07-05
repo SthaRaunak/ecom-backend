@@ -98,7 +98,7 @@ const getProductById = async (
       product,
     });
   } catch (err) {
-    next(
+    return next(
       new NotFoundException("Product not found.", ErrorCode.PRODUCT_NOT_FOUND)
     );
   }
