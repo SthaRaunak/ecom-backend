@@ -104,10 +104,54 @@ const getProductById = async (
   }
 };
 
+const searchProducts = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { q: query, offset, limit } = req.query;
+
+  const products = await prismaClient.product.findMany({
+    where: {
+      name: {
+        search: query?.toString(),
+      },
+      description: {
+        search: query?.toString(),
+      },
+      tags: {
+        search: query?.toString(),
+      },
+    },
+
+    skip: Number(offset) || 0,
+    take: Number(limit) || 5,
+  });
+
+  const count = await prismaClient.product.count({
+    where: {
+      name: {
+        search: query?.toString(),
+      },
+      description: {
+        search: query?.toString(),
+      },
+      tags: {
+        search: query?.toString(),
+      },
+    },
+  });
+  return res.status(200).json({
+    count: count,
+    data: products,
+  });
+};
+
 export {
   createProduct,
   deleteProduct,
   updateProduct,
   listProduct,
   getProductById,
+  searchProducts,
 };

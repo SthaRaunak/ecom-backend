@@ -5,6 +5,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["fullTextSearch", "fullTextIndex"]
 }
 
 datasource db {
@@ -52,6 +53,8 @@ model Product {
   orders OrderProduct[]
   createdAt DateTime @default(now()) 
   updatedAt DateTime @updatedAt
+
+  @@fulltext([name,description,tags])
   @@map("products")
 }
 
@@ -78,12 +81,12 @@ model CartItem{
   quantity Int
   createdAt DateTime @default(now()) 
   updatedAt DateTime @updatedAt
-@@map("cart_items")
+  @@map("cart_items")
 }
 
 model Order{
   id Int @id @default(autoincrement())
-  userId Int @unique
+  userId Int
   user User @relation(fields:[userId], references: [id] )
   netAmount Decimal
   address String

@@ -5,6 +5,7 @@ import {
   deleteProduct,
   getProductById,
   listProduct,
+  searchProducts,
   updateProduct,
 } from "../controllers/product.controller";
 import { validateRequest } from "../middlewares/validation.middleware";
@@ -40,5 +41,7 @@ router
   .delete(authMiddleware, adminMiddleware, asyncHandler(deleteProduct));
 
 router.route("/").get(asyncHandler(listProduct));
+router.route("/search").get(asyncHandler(searchProducts));
+
 router.route("/:id").get(asyncHandler(getProductById));
 export default router;
