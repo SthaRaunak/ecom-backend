@@ -24,4 +24,8 @@ export const UpdateUserSchema = z.object({
   defaultBillingAddressId: z.number().optional(),
 });
 
+export const ChangeUserRoleSchema = z.object({
+  role: z.enum(["ADMIN", "USER"]),
+});
+
 export type UpdateUser = z.infer<typeof UpdateUserSchema>;

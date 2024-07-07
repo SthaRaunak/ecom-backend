@@ -5,6 +5,7 @@ import { ErrorCode } from "../exceptions/root";
 import { Address } from "@prisma/client";
 import { BadRequestException } from "../exceptions/bad-requests";
 import { type UpdateUser, UpdateUserSchema } from "../schema/user.schema";
+import { UnauthorizedException } from "../exceptions/unauthorized";
 
 const createAddress = async (
   req: Request,
@@ -117,4 +118,78 @@ const updateUser = async (
     updatedUser,
   });
 };
-export { createAddress, deleteAddress, listAddress, updateUser };
+
+const listUsers = async (req: Request, res: Response, next: NextFunction) => {
+  const { offset, limit } = req.query;
+  const count = await prismaClient.user.count();
+  const users = await prismaClient.user.findMany({
+    skip: Number(offset) || 0,
+    take: Number(limit) || 5,
+  });
+
+  return res.status(200).json({
+    count: count,
+    data: users,
+  });
+};
+
+const getUserById = async (req: Request, res: Response, next: NextFunction) => {
+  const { id: userId } = req.params;
+  try {
+    const user = await prismaClient.user.findFirstOrThrow({
+      where: {
+        id: Number(userId),
+      },
+      include: {
+        adresses: true,
+      },
+    });
+
+    return res.status(200).json(user);
+  } catch (err) {
+    return next(
+      new NotFoundException("User not found", ErrorCode.USER_NOT_FOUND)
+    );
+  }
+};
+
+const changeUserRole = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const user = req.user!;
+
+  const { role } = req.body;
+  const { id: userId } = req.params;
+
+  if (user.id === Number(userId)) {
+    return next(
+      new UnauthorizedException(
+        "Cannot change role of self",
+        ErrorCode.UNAUTHORIZED
+      )
+    );
+  }
+
+  const updatedUser = await prismaClient.user.update({
+    where: {
+      id: Number(userId),
+    },
+    data: {
+      role: role,
+    },
+  });
+
+  return res.status(200).json(updatedUser);
+};
+
+export {
+  createAddress,
+  deleteAddress,
+  listAddress,
+  updateUser,
+  listUsers,
+  getUserById,
+  changeUserRole,
+};
