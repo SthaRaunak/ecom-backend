@@ -189,4 +189,114 @@ const getOrderById = async (
   return res.status(200).json(order);
 };
 
-export { createOrder, listOrders, cancelOrder, getOrderById };
+const listAllOrders = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  let whereClause = {};
+  const { offset, limit, status } = req.query;
+
+  if (status) {
+    whereClause = {
+      status: status,
+    };
+  }
+
+  const count = await prismaClient.order.count();
+  const orders = await prismaClient.order.findMany({
+    where: {
+      ...whereClause,
+    },
+    skip: Number(offset) || 0,
+    take: Number(limit) || 5,
+  });
+
+  return res.status(200).json({
+    count,
+    data: orders,
+  });
+};
+const listUserOrders = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { id: userId } = req.params;
+  let whereClause = {};
+
+  const { status } = req.query;
+
+  if (status) {
+    whereClause = {
+      status,
+    };
+  }
+
+  let user;
+  try {
+    user = await prismaClient.user.findFirstOrThrow({
+      where: {
+        id: Number(userId),
+      },
+    });
+  } catch (err) {
+    return next(
+      new NotFoundException("User doesnt exist", ErrorCode.USER_NOT_FOUND)
+    );
+  }
+
+  const userOrders = await prismaClient.order.findMany({
+    where: {
+      userId: user.id,
+      ...whereClause,
+    },
+  });
+
+  return res.status(200).json(userOrders);
+};
+
+const changeStatus = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { status } = req.body;
+  const { id: orderId } = req.params;
+
+  return await prismaClient.$transaction(async (tx) => {
+    let order;
+    try {
+      order = await tx.order.findFirstOrThrow({
+        where: {
+          id: Number(orderId),
+        },
+      });
+    } catch (err) {
+      return next(
+        new NotFoundException("Order not found", ErrorCode.ORDER_NOT_FOUND)
+      );
+    }
+
+    const updatedOrder = await tx.order.update({
+      where: {
+        id: order.id,
+      },
+      data: {
+        status,
+      },
+    });
+
+    return res.status(200).json(updatedOrder);
+  });
+};
+
+export {
+  createOrder,
+  listOrders,
+  cancelOrder,
+  getOrderById,
+  listAllOrders,
+  listUserOrders,
+  changeStatus,
+};

@@ -31,4 +31,31 @@ function validateRequest(schema: ZodSchema) {
   };
 }
 
-export { validateRequest };
+function validateQuery(schema: ZodSchema) {
+  return function (req: Request, res: Response, next: NextFunction) {
+    try {
+      req.query = schema.parse(req.query);
+      next();
+    } catch (err) {
+      if (err instanceof ZodError) {
+        next(
+          new UnprocessableEntity(
+            err?.issues,
+            "Unprocessable Entity",
+            ErrorCode.UNPROCESSABLE_ENTITY
+          )
+        );
+      } else {
+        next(
+          new InternalException(
+            "Something went wrong",
+            err,
+            ErrorCode.INTERNAL_EXCEPTION
+          )
+        );
+      }
+    }
+  };
+}
+
+export { validateRequest, validateQuery };
