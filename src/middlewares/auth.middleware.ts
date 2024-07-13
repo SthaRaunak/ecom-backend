@@ -5,7 +5,6 @@ import { JWT_SECRET } from "../secrets";
 import { ErrorCode } from "../exceptions/root";
 import { prismaClient } from "..";
 import { UnauthorizedException } from "../exceptions/unauthorized";
-import { User } from "@prisma/client";
 
 type JWTPayload = {
   userId: number;
@@ -22,23 +21,21 @@ export async function authMiddleware(
   res: Response,
   next: NextFunction
 ) {
-  const token = req.headers["authorization"];
-
-  if (!token) {
-    return next(
-      new UnauthorizedException("Unauthorized", ErrorCode.UNAUTHORIZED)
-    );
-  }
+  const accessToken = req.headers["authorization"];
   try {
-    const payload = jwt.verify(token, JWT_SECRET) as any; //throws error if not valid
+    if (!accessToken) {
+      throw new Error();
+    }
+    const payload = jwt.verify(accessToken, JWT_SECRET) as any; //throws error if not valid or expired
+
     const user = await prismaClient.user.findFirst({
       where: { id: payload?.userId },
     });
-    console.log("user:", user);
+
+    console.log("user:", user?.name);
+
     if (!user) {
-      return next(
-        new UnauthorizedException("Unauthorized", ErrorCode.UNAUTHORIZED)
-      );
+      throw new Error();
     }
 
     req.user = user;
