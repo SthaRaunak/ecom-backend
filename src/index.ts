@@ -3,12 +3,15 @@ import { PORT } from "./secrets";
 import rootRouter from "./routes";
 import { PrismaClient } from "@prisma/client";
 import { errorMiddleware } from "./middlewares/errors";
+import { z } from "zod";
 import cookieParser from "cookie-parser";
+import { customErrorMap } from "./utils/zodErrorMap";
 
 const app = express();
 
 app.use(express.json());
 app.use(cookieParser());
+z.setErrorMap(customErrorMap);
 
 app.use("/api", rootRouter);
 

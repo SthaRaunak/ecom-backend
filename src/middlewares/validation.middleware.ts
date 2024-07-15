@@ -8,18 +8,23 @@ function validateRequest(schema: ZodSchema) {
   return function (req: Request, res: Response, next: NextFunction) {
     try {
       req.body = schema.parse(req.body);
-      next();
+      return next();
     } catch (err) {
       if (err instanceof ZodError) {
-        next(
+        const formattedError = err.errors.map((err) => ({
+          path: err.path.join("."),
+          message: err.message,
+        }));
+
+        return next(
           new UnprocessableEntity(
-            err?.issues,
+            formattedError,
             "Unprocessable Entity",
             ErrorCode.UNPROCESSABLE_ENTITY
           )
         );
       } else {
-        next(
+        return next(
           new InternalException(
             "Something went wrong",
             err,
